@@ -32,7 +32,8 @@ within the `users` controller to be served via HTTPS, and _all_ `store` actions 
     			'store' => '*'
     		)
     	),
-    	'autoRedirect' => false  // temporarily disable this component
+    	'autoRedirect' => false, // temporarily disable this component
+    	'wildcard' => true       // allow access to all sub-domains
     );
 
 Requirements:

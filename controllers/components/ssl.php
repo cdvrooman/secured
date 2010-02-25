@@ -53,6 +53,14 @@ class SslComponent extends Object {
 	public $autoRedirect = true;
 
 	/**
+	 * If the domain is using a Wildcard SSL Certificate,
+	 * set this variable to true.
+	 *
+	 * @var boolean
+	 */
+	public $wildcard = false;
+
+	/**
 	 * Component initialize method.
 	 * Is called before the controller beforeFilter method. All local component initialization
 	 * is done here.
@@ -110,12 +118,9 @@ class SslComponent extends Object {
 	 * @todo allow conditional passing of server identifier
 	 */
 	public function forceSSL() {
-		$server = env('SERVER_NAME');
+    $domain = $this->domain();
 
-		if (substr($server, 0, 4) === 'www.') {
-			$server = substr($server, 4);
-		}
-		$this->controller->redirect("https://www.$server{$this->controller->here}");
+		$this->controller->redirect("https://$domain{$this->controller->here}");
 	}
 
 	/**
@@ -127,13 +132,26 @@ class SslComponent extends Object {
 	 * @todo allow conditional passing of server identifier
 	 */
 	public function forceNoSSL() {
+    $domain = $this->domain();
+
+		$this->controller->redirect("http://$domain{$this->controller->here}");
+	}
+
+  public function domain() {
 		$server = env('SERVER_NAME');
 
-		if (substr($server, 0, 4) === 'www.') {
-			$server = substr($server, 4);
-		}
-		$this->controller->redirect("http://www.$server{$this->controller->here}");
-	}
+    switch (true) {
+      case ($server == 'localhost'):
+      case ($this->wildcard === true):
+        break;
+      default:
+    		if (substr($server, 0, 4) !== 'www.') {
+    			$server = 'www.' . $server;
+        }
+        break;
+    }
+    return $server;
+  }
 
 }
 ?>
